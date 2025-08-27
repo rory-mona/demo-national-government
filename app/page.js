@@ -56,10 +56,18 @@ export default function LoginPage() {
       const config = {
         targetElement: attestContainerRef.current,
         frontendUrl: frontendUrl,
-        apiUrl: apiUrl
+        apiUrl: apiUrl,
+        scale: 1.0
       }
       
       const attestSDK = new AttestFrontendSDK(config)
+      
+      // Grow the target component by 50% when SDK is instantiated
+      if (attestContainerRef.current) {
+        attestContainerRef.current.style.transform = 'scale(1.5)'
+        attestContainerRef.current.style.transformOrigin = 'center'
+        attestContainerRef.current.style.transition = 'transform 0.3s ease-in-out'
+      }
 
       // Mock login endpoint - use absolute URL
       const loginUrl = `${window.location.origin}/api/auth/login`
