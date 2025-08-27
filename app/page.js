@@ -63,8 +63,13 @@ export default function LoginPage() {
       const attestSDK = new AttestFrontendSDK(config)
       
    
-      // Mock login endpoint - use absolute URL
-      const loginUrl = `${window.location.origin}/api/auth/login`
+      // Real Mona API login endpoint
+      const monaApiUrl = process.env.NEXT_PUBLIC_MONA_API
+      if (!monaApiUrl) {
+        throw new Error('Mona API URL not configured')
+      }
+      
+      const loginUrl = `${monaApiUrl}/api/auth/login`
       
       const response = await attestSDK.fetchWithAttestation(
         loginUrl,

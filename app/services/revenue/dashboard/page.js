@@ -47,12 +47,25 @@ export default function RevenueDashboard() {
             <div className="flex items-center space-x-4">
               {user && (
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 text-sm font-medium">
-                      {user.name?.charAt(0) || 'U'}
-                    </span>
-                  </div>
-                  <span className="text-sm text-gray-700">{user.name || 'User'}</span>
+                  {user.imageUrl ? (
+                    <img 
+                      src={user.imageUrl} 
+                      alt="User" 
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <span className="text-green-600 text-sm font-medium">
+                        {user.firstName?.charAt(0) || user.lastName?.charAt(0) || 'U'}
+                      </span>
+                    </div>
+                  )}
+                  <span className="text-sm text-gray-700">
+                    {user.firstName && user.lastName 
+                      ? `${user.firstName} ${user.lastName}`
+                      : user.firstName || user.lastName || user.email || 'User'
+                    }
+                  </span>
                 </div>
               )}
               <button
