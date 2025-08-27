@@ -39,10 +39,11 @@ next-env.d.ts
 package-lock.json
 yarn.lock
 
-# large binary files
-*.png
+# large binary files (excluding specific project images)
 *.jpg
 *.jpeg
 *.gif
 *.ico
 *.svg
+# Allow specific project images
+!public/*.png
