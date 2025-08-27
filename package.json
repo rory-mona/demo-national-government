@@ -9,7 +9,7 @@
         "lint": "next lint"
     },
     "dependencies": {
-        "@usemona/attest-frontend-sdk": "^4.1.7",
+        "@usemona/attest-frontend-sdk": "^4.1.8",
         "next": "^15.5.2",
         "react": "^18",
         "react-dom": "^18"
