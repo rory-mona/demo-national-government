@@ -90,8 +90,16 @@ export default function Dashboard() {
 
   const handleServiceClick = (serviceId) => {
     // Navigate to specific service page
-    console.log(`Navigating to ${serviceId} service`)
-    // You can add routing logic here
+    if (serviceId === 'revenue') {
+      window.location.href = '/services/revenue'
+    } else if (serviceId === 'electoral') {
+      window.location.href = '/services/electoral'
+    } else if (serviceId === 'education') {
+      window.location.href = '/services/education'
+    } else {
+      console.log(`Navigating to ${serviceId} service`)
+      // You can add routing logic here for other services
+    }
   }
 
   const handleLogout = () => {
