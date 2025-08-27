@@ -57,7 +57,7 @@ export default function LoginPage() {
         targetElement: attestContainerRef.current,
         frontendUrl: frontendUrl,
         apiUrl: apiUrl,
-        scale: 0.3
+        scale: 0.8
       }
       
       const attestSDK = new AttestFrontendSDK(config)
@@ -107,10 +107,7 @@ export default function LoginPage() {
       <div className="lg:hidden bg-green-50 p-4 border-b border-green-100">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
-            <div className="w-6 h-6 bg-green-600 rounded-full flex items-center justify-center mr-2">
-              <span className="text-white text-sm font-bold">G</span>
-            </div>
-            <span className="text-gray-800 text-lg font-semibold">GSP Design</span>
+
           </div>
           
           {/* Toggle Switch */}
