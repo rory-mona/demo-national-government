@@ -118,7 +118,7 @@ export default function Dashboard() {
               <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
                 <span className="text-white text-lg font-bold">G</span>
               </div>
-              <h1 className="text-xl font-semibold text-gray-900">Nigerian E-Government Portal</h1>
+              <h1 className="text-xl font-semibold text-gray-900">Republic of Nadira E-Government Portal</h1>
             </div>
             
             <div className="flex items-center space-x-4">
@@ -178,7 +178,7 @@ export default function Dashboard() {
                 <div>
                   <p className="text-sm font-medium text-gray-600">Last Login</p>
                   <p className="text-lg font-semibold text-gray-900">Today, 2:34 PM</p>
-                  <p className="text-xs text-gray-500">From Lagos, Nigeria</p>
+                  <p className="text-xs text-gray-500">From Lagos, Republic of Nadira</p>
                 </div>
                 <div className="pt-4 border-t border-gray-100">
                   <p className="text-sm font-medium text-gray-600">Services Used</p>
@@ -309,7 +309,7 @@ export default function Dashboard() {
         {/* Footer */}
         <div className="mt-16 pt-8 border-t border-gray-200">
           <div className="text-center text-sm text-gray-500">
-            <p>© 2024 Federal Government of Nigeria. All rights reserved.</p>
+            <p>© 2024 Federal Government of Republic of Nadira. All rights reserved.</p>
             <p className="mt-1">
               Need assistance? Contact{' '}
               <a href="mailto:support@egov.ng" className="text-green-600 hover:text-green-700">

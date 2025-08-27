@@ -201,7 +201,7 @@ export default function LoginPage() {
           {/* Text Content */}
           <div>
             <h2 className="text-3xl font-bold text-gray-800 mb-6 leading-tight">
-              Nigeria is home to the<br />
+              Republic of Nadira is home to the<br />
               &ldquo;Nollywood&rdquo; film industry.
             </h2>
             <p className="text-gray-600 leading-relaxed mb-8">
@@ -267,12 +267,12 @@ export default function LoginPage() {
                 CITIZEN&apos;S PORTAL
               </p>
               
-              {/* Nigerian Coat of Arms */}
+              {/* Republic of Nadira Coat of Arms */}
               <div className="flex justify-center mb-6">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
                   <Image
                     src="/coat.png"
-                    alt="Nigerian Coat of Arms"
+                    alt="Republic of Nadira Coat of Arms"
                     width={64}
                     height={64}
                     className="rounded-full"

@@ -193,7 +193,7 @@ export default function ElectoralDashboard() {
         {/* Footer */}
         <div className="mt-16 pt-8 border-t border-gray-200">
           <div className="text-center text-sm text-gray-500">
-            <p>© 2024 Federal Government of Nigeria. All rights reserved.</p>
+            <p>© 2024 Federal Government of Republic of Nadira. All rights reserved.</p>
             <p className="mt-1">
               Need assistance? Contact{' '}
               <a href="mailto:electoral@egov.ng" className="text-green-600 hover:text-green-700">

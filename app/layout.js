@@ -5,7 +5,7 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'Citizen Portal - Get Started',
-  description: 'Nigerian Government Citizen Portal - Access your account',
+          description: 'Republic of Nadira Government Citizen Portal - Access your account',
 }
 
 export default function RootLayout({ children }) {

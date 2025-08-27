@@ -226,7 +226,7 @@ export default function ElectoralService() {
             <div className="relative w-full max-w-md">
               <Image
                 src="/coat.png"
-                alt="Nigerian Coat of Arms"
+                alt="Republic of Nadira Coat of Arms"
                 width={400}
                 height={400}
                 className="w-full h-auto"
