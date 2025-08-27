@@ -33,20 +33,31 @@ export default function LoginPage() {
         body: JSON.stringify({ component: 'LoginPage' })
       })
 
+      if (!discoveryResponse.ok) {
+        throw new Error(`Discovery failed: ${discoveryResponse.status}`)
+      }
+
       const discoveryData = await discoveryResponse.json()
       const discoveryId = discoveryData.discoveryId
 
       // Initialize AttestFrontendSDK with targetElement
-      const { AttestFrontendSDK } = await import('@usemona/attest-frontend-sdk')
+      let AttestFrontendSDK
+      try {
+        const sdkModule = await import('@usemona/attest-frontend-sdk')
+        AttestFrontendSDK = sdkModule.AttestFrontendSDK
+      } catch (error) {
+        console.error('Failed to load AttestFrontendSDK:', error)
+        throw new Error('AttestFrontendSDK not available')
+      }
       
-      const frontendUrl = process.env.NEXT_PUBLIC_ATTEST_FRONTEND
-      const apiUrl = process.env.NEXT_PUBLIC_ATTEST_BACKEND
+      const frontendUrl = process.env.NEXT_PUBLIC_ATTEST_FRONTEND || 'http://localhost:3001'
+      const apiUrl = process.env.NEXT_PUBLIC_ATTEST_BACKEND || 'http://localhost:4000'
       
       const config = {
-        targetElement: attestContainerRef.current
+        targetElement: attestContainerRef.current,
+        frontendUrl: frontendUrl,
+        apiUrl: apiUrl
       }
-      if (frontendUrl) config.frontendUrl = frontendUrl
-      if (apiUrl) config.apiUrl = apiUrl
       
       const attestSDK = new AttestFrontendSDK(config)
 
