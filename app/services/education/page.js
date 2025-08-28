@@ -71,12 +71,7 @@ export default function EducationService() {
 
       const attestSDK = new AttestFrontendSDK(config)
 
-      // Grow the target component by 50% when SDK is instantiated
-      if (attestContainerRef.current) {
-        attestContainerRef.current.style.transform = 'scale(1.5)'
-        attestContainerRef.current.style.transformOrigin = 'center'
-        attestContainerRef.current.style.transition = 'transform 0.3s ease-in-out'
-      }
+
 
       // Real Mona API login endpoint
       const monaApiUrl = process.env.NEXT_PUBLIC_MONA_API
@@ -186,20 +181,7 @@ export default function EducationService() {
                 </ul>
               </div>
 
-              {/* Mona Attest Toggle */}
-              {isMonaAttest && (
-                <div className="flex items-center space-x-3">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={showAttestContainer}
-                      onChange={(e) => setShowAttestContainer(e.target.checked)}
-                      className="rounded border-gray-300 text-green-600 focus:ring-green-500"
-                    />
-                    <span className="ml-2 text-sm text-gray-700">Use Secure Authentication</span>
-                  </label>
-                </div>
-              )}
+             
 
               {/* Continue Button or Attest Container */}
               {showAttestContainer ? (
