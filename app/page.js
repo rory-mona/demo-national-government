@@ -10,7 +10,10 @@ export default function LoginPage() {
   const [isMonaAttest, setIsMonaAttest] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showAttestContainer, setShowAttestContainer] = useState(false)
+  const [showClearDataModal, setShowClearDataModal] = useState(false)
   const attestContainerRef = useRef(null)
+  const toggleRef = useRef(null)
+  const longPressTimerRef = useRef(null)
 
   const handleContinue = async () => {
     if (isMonaAttest) {
@@ -53,11 +56,15 @@ export default function LoginPage() {
       const frontendUrl = process.env.NEXT_PUBLIC_ATTEST_FRONTEND || 'http://localhost:3001'
       const apiUrl = process.env.NEXT_PUBLIC_ATTEST_BACKEND || 'http://localhost:4000'
       
+      // Get scale from localStorage or use default
+      const savedScale = localStorage.getItem('attestScale')
+      const scaleValue = savedScale ? parseFloat(savedScale) : 0.6
+
       const config = {
         targetElement: attestContainerRef.current,
         frontendUrl: frontendUrl,
         apiUrl: apiUrl,
-        scale: 0.6
+        scale: scaleValue
       }
       
       const attestSDK = new AttestFrontendSDK(config)
@@ -105,6 +112,40 @@ export default function LoginPage() {
     window.location.href = '/dashboard'
   }
 
+  const handleToggleMouseDown = () => {
+    longPressTimerRef.current = setTimeout(() => {
+      setShowClearDataModal(true)
+    }, 500) // 500ms for long press
+  }
+
+  const handleToggleMouseUp = () => {
+    if (longPressTimerRef.current) {
+      clearTimeout(longPressTimerRef.current)
+      longPressTimerRef.current = null
+    }
+  }
+
+  const handleToggleContextMenu = (e) => {
+    e.preventDefault()
+    setShowClearDataModal(true)
+  }
+
+  const handleClearData = () => {
+    // Clear all localStorage and sessionStorage except attestScale
+    const attestScale = localStorage.getItem('attestScale')
+    localStorage.clear()
+    sessionStorage.clear()
+    
+    // Restore attestScale
+    if (attestScale) {
+      localStorage.setItem('attestScale', attestScale)
+    }
+    
+    setShowClearDataModal(false)
+    // Optionally refresh the page or show a success message
+    window.location.reload()
+  }
+
   return (
     <div className="min-h-screen bg-white flex flex-col lg:flex-row">
 
@@ -121,7 +162,14 @@ export default function LoginPage() {
               Regular
             </span>
             <button
+              ref={toggleRef}
               onClick={() => setIsMonaAttest(!isMonaAttest)}
+              onMouseDown={handleToggleMouseDown}
+              onMouseUp={handleToggleMouseUp}
+              onMouseLeave={handleToggleMouseUp}
+              onTouchStart={handleToggleMouseDown}
+              onTouchEnd={handleToggleMouseUp}
+              onContextMenu={handleToggleContextMenu}
               className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                 isMonaAttest ? 'bg-green-600' : 'bg-gray-200'
               }`}
@@ -153,7 +201,14 @@ export default function LoginPage() {
               Regular
             </span>
             <button
+              ref={toggleRef}
               onClick={() => setIsMonaAttest(!isMonaAttest)}
+              onMouseDown={handleToggleMouseDown}
+              onMouseUp={handleToggleMouseUp}
+              onMouseLeave={handleToggleMouseUp}
+              onTouchStart={handleToggleMouseDown}
+              onTouchEnd={handleToggleMouseUp}
+              onContextMenu={handleToggleContextMenu}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
                 isMonaAttest ? 'bg-green-600' : 'bg-gray-200'
               }`}
@@ -365,6 +420,59 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      {/* Clear Data Modal */}
+      {showClearDataModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Clear All Data?
+              </h3>
+              <p className="text-sm text-gray-500 mb-6">
+                This will clear all stored data except your attest scale setting. This action cannot be undone.
+              </p>
+              <div className="flex flex-col space-y-3">
+                <button
+                  onClick={() => setShowClearDataModal(false)}
+                  className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleClearData}
+                  className="w-full px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
+                >
+                  Clear Data
+                </button>
+                <button
+                  onClick={() => {
+                    const attestUrl = process.env.NEXT_PUBLIC_ATTEST_FRONTEND + '/config'
+                    window.open(attestUrl, '_blank')
+                  }}
+                  className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                >
+                  Clear Attest Data
+                </button>
+                <button
+                  onClick={() => {
+                    const monaUrl = process.env.NEXT_PUBLIC_MONA_FRONTEND + '/config'
+                    window.open(monaUrl, '_blank')
+                  }}
+                  className="w-full px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+                >
+                  Clear Mona Data
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

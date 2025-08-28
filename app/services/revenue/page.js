@@ -58,11 +58,15 @@ export default function RevenueService() {
       const frontendUrl = process.env.NEXT_PUBLIC_ATTEST_FRONTEND || 'http://localhost:3001'
       const apiUrl = process.env.NEXT_PUBLIC_ATTEST_BACKEND || 'http://localhost:4000'
 
+      // Get scale from localStorage or use default
+      const savedScale = localStorage.getItem('attestScale')
+      const scaleValue = savedScale ? parseFloat(savedScale) : 0.8
+
       const config = {
         targetElement: attestContainerRef.current,
         frontendUrl: frontendUrl,
         apiUrl: apiUrl,
-        scale: 0.8
+        scale: scaleValue
       }
 
       const attestSDK = new AttestFrontendSDK(config)
