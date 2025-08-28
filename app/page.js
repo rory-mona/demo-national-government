@@ -1,7 +1,7 @@
 "use client"
 
 import Image from 'next/image'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 
 export default function LoginPage() {
   const [activeTab, setActiveTab] = useState('citizen')
@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showAttestContainer, setShowAttestContainer] = useState(false)
   const [showClearDataModal, setShowClearDataModal] = useState(false)
+  const [scale, setScale] = useState(0.6)
   const attestContainerRef = useRef(null)
   const toggleRef = useRef(null)
   const longPressTimerRef = useRef(null)
@@ -145,6 +146,21 @@ export default function LoginPage() {
     // Optionally refresh the page or show a success message
     window.location.reload()
   }
+
+  const handleScaleChange = (newScale) => {
+    setScale(newScale)
+    localStorage.setItem('attestScale', newScale.toString())
+  }
+
+  // Load scale from localStorage when modal opens
+  useEffect(() => {
+    if (showClearDataModal) {
+      const savedScale = localStorage.getItem('attestScale')
+      if (savedScale) {
+        setScale(parseFloat(savedScale))
+      }
+    }
+  }, [showClearDataModal])
 
   return (
     <div className="min-h-screen bg-white flex flex-col lg:flex-row">
@@ -432,11 +448,66 @@ export default function LoginPage() {
                 </svg>
               </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                Clear All Data?
+                Attest SDK Configuration
               </h3>
               <p className="text-sm text-gray-500 mb-6">
-                This will clear all stored data except your attest scale setting. This action cannot be undone.
+                Configure the scale factor and manage your data settings.
               </p>
+
+              {/* Scale Slider */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Scale Factor: <span className="font-bold text-green-600">{scale}</span>
+                </label>
+                <div className="space-y-3">
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="2.0"
+                    step="0.1"
+                    value={scale}
+                    onChange={(e) => handleScaleChange(parseFloat(e.target.value))}
+                    className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  />
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>0.1</span>
+                    <span>0.5</span>
+                    <span>1.0</span>
+                    <span>1.5</span>
+                    <span>2.0</span>
+                  </div>
+                </div>
+                
+                {/* Quick Presets */}
+                <div className="mt-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => handleScaleChange(0.3)}
+                      className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                    >
+                      Small (0.3)
+                    </button>
+                    <button
+                      onClick={() => handleScaleChange(0.6)}
+                      className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                    >
+                      Medium (0.6)
+                    </button>
+                    <button
+                      onClick={() => handleScaleChange(1.0)}
+                      className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                    >
+                      Normal (1.0)
+                    </button>
+                    <button
+                      onClick={() => handleScaleChange(1.5)}
+                      className="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                    >
+                      Large (1.5)
+                    </button>
+                  </div>
+                </div>
+              </div>
               <div className="flex flex-col space-y-3">
                 <button
                   onClick={() => setShowClearDataModal(false)}
