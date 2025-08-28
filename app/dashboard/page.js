@@ -115,15 +115,19 @@ export default function Dashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center mr-3">
-                <span className="text-white text-lg font-bold">G</span>
-              </div>
-              <h1 className="text-xl font-semibold text-gray-900">Republic of Nadira E-Government Portal</h1>
+              <Image
+                src="/coat.png"
+                alt="Republic of Nadira Coat of Arms"
+                width={32}
+                height={32}
+                className="w-8 h-8 object-contain mr-3"
+              />
+              <h1 className="hidden md:block text-xl font-semibold text-gray-900">Republic of Nadira E-Government Portal</h1>
             </div>
             
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 md:space-x-4">
               {user && (
-                <div className="flex items-center space-x-2">
+                <div className="hidden sm:flex items-center space-x-2">
                   {user.imageUrl ? (
                     <img 
                       src={user.imageUrl} 
@@ -147,7 +151,7 @@ export default function Dashboard() {
               )}
               <button
                 onClick={handleLogout}
-                className="text-sm text-gray-500 hover:text-gray-700"
+                className="text-sm text-gray-500 hover:text-gray-700 px-2 py-1 rounded bg-gray-100 hover:bg-gray-200"
               >
                 Logout
               </button>

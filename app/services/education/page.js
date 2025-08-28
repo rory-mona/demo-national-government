@@ -62,7 +62,7 @@ export default function EducationService() {
         targetElement: attestContainerRef.current,
         frontendUrl: frontendUrl,
         apiUrl: apiUrl,
-        scale: 1.0
+        scale: 0.8
       }
 
       const attestSDK = new AttestFrontendSDK(config)

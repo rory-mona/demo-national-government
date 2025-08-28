@@ -57,7 +57,7 @@ export default function LoginPage() {
         targetElement: attestContainerRef.current,
         frontendUrl: frontendUrl,
         apiUrl: apiUrl,
-        scale: 0.8
+        scale: 0.6
       }
       
       const attestSDK = new AttestFrontendSDK(config)
