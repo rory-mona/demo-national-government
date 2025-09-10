@@ -6,18 +6,17 @@ import Image from 'next/image'
 
 export default function RevenueService() {
   const router = useRouter()
-  const [isMonaAttest, setIsMonaAttest] = useState(false)
+  const [isMonaAttest, setIsMonaAttest] = useState(true) // Always use Mona Attest
   const [showAttestContainer, setShowAttestContainer] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [user, setUser] = useState(null)
+  const [showClearDataModal, setShowClearDataModal] = useState(false)
+  const [scale, setScale] = useState(0.6)
   const attestContainerRef = useRef(null)
+  const toggleRef = useRef(null)
+  const longPressTimerRef = useRef(null)
 
   useEffect(() => {
-    // Check if Mona Attest is enabled
-    const frontendUrl = process.env.NEXT_PUBLIC_ATTEST_FRONTEND
-    const apiUrl = process.env.NEXT_PUBLIC_ATTEST_BACKEND
-    setIsMonaAttest(!!(frontendUrl && apiUrl))
-
     // Get user data from localStorage
     const userData = localStorage.getItem('paymonaUser')
     if (userData) {
@@ -30,21 +29,6 @@ export default function RevenueService() {
     setShowAttestContainer(true)
 
     try {
-      // Mock discovery call
-      const discoveryResponse = await fetch('/api/consent/oyamoney-discovery', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          component: 'RevenueService'
-        })
-      })
-
-      if (!discoveryResponse.ok) {
-        throw new Error('Discovery failed')
-      }
-
       // Load and initialize AttestFrontendSDK
       let AttestFrontendSDK
       try {

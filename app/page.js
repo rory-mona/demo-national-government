@@ -7,44 +7,38 @@ export default function LoginPage() {
   const [activeTab, setActiveTab] = useState('citizen')
   const [nin, setNin] = useState('')
   const [phone, setPhone] = useState('')
-  const [isMonaAttest, setIsMonaAttest] = useState(false)
+  const [isMonaAttest, setIsMonaAttest] = useState(true) // Always use Mona Attest
   const [isLoading, setIsLoading] = useState(false)
   const [showAttestContainer, setShowAttestContainer] = useState(false)
+  const [iframeActive, setIframeActive] = useState(false)
+  const [containerHeight, setContainerHeight] = useState(null)
   const [showClearDataModal, setShowClearDataModal] = useState(false)
   const [scale, setScale] = useState(0.6)
   const attestContainerRef = useRef(null)
-  const toggleRef = useRef(null)
+  const mobileToggleRef = useRef(null)
+  const desktopToggleRef = useRef(null)
   const longPressTimerRef = useRef(null)
 
   const handleContinue = async () => {
-    if (isMonaAttest) {
-      await handleMonaAttestLogin()
-    } else {
-      // Regular login logic here
-      console.log('Regular login with NIN:', nin, 'Phone:', phone)
-    }
+    // Always use Mona Attest login
+    await handleMonaAttestLogin()
   }
 
   const handleMonaAttestLogin = async () => {
     setIsLoading(true)
     setShowAttestContainer(true)
     
+    // Capture current height before hiding UI (same as oyaMoney)
+    if (attestContainerRef.current) {
+      setContainerHeight(attestContainerRef.current.scrollHeight)
+    }
+    
+    setIframeActive(true) // Hide UI when iframe starts (same as oyaMoney)
+    
     try {
-      // Mock discovery call - replace with your actual discovery endpoint
-      const discoveryResponse = await fetch('/api/consent/oyamoney-discovery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ component: 'LoginPage' })
-      })
+      // No need for discoveryId - SDK will handle enrollment flow automatically
 
-      if (!discoveryResponse.ok) {
-        throw new Error(`Discovery failed: ${discoveryResponse.status}`)
-      }
-
-      const discoveryData = await discoveryResponse.json()
-      const discoveryId = discoveryData.discoveryId
-
-      // Initialize AttestFrontendSDK with targetElement
+      // Initialize AttestFrontendSDK with same config as oyaMoney utility function
       let AttestFrontendSDK
       try {
         const sdkModule = await import('@usemona/attest-frontend-sdk')
@@ -54,21 +48,42 @@ export default function LoginPage() {
         throw new Error('AttestFrontendSDK not available')
       }
       
-      const frontendUrl = process.env.NEXT_PUBLIC_ATTEST_FRONTEND || 'http://localhost:3001'
-      const apiUrl = process.env.NEXT_PUBLIC_ATTEST_BACKEND || 'http://localhost:4000'
+      const clientId = process.env.NEXT_PUBLIC_MONA_CLIENT_ID || 'api_68599512ewfef1ee33f910a_12222529311_wefwefwef'
+      const targetElement = attestContainerRef.current
       
-      // Get scale from localStorage or use default
-      const savedScale = localStorage.getItem('attestScale')
-      const scaleValue = savedScale ? parseFloat(savedScale) : 0.6
-
-      const config = {
-        targetElement: attestContainerRef.current,
-        frontendUrl: frontendUrl,
-        apiUrl: apiUrl,
-        scale: scaleValue
-      }
+      console.log('🔧 handleMonaAttestLogin - targetElement:', targetElement ? 'provided' : 'not provided')
       
-      const attestSDK = new AttestFrontendSDK(config)
+      // Use EXACT same config pattern as oyaMoney's createAttestFrontendSDK utility
+      const env = process.env.NEXT_PUBLIC_ENV
+      const frontendUrl = process.env.NEXT_PUBLIC_ATTEST_FRONTEND
+      const apiUrl = process.env.NEXT_PUBLIC_ATTESTTOOL_BACKEND_URL
+      
+      console.log('🔧 AttestSDK: Environment variables from Next.js', {
+        env,
+        frontendUrl,
+        apiUrl,
+        clientId,
+        targetElement: targetElement ? 'provided' : 'not provided'
+      })
+      
+      const attestSDK = new AttestFrontendSDK({
+        clientId,
+        targetElement: targetElement || undefined,
+        // Pass environment variables directly (EXACT same as oyaMoney utility)
+        frontendUrl: env !== 'production' && frontendUrl ? frontendUrl : undefined,
+        apiUrl: env !== 'production' && apiUrl ? apiUrl : undefined
+      })
+      
+      // Debug: Check if iframe was created and is visible
+      setTimeout(() => {
+        const iframe = targetElement?.querySelector('iframe')
+        console.log('🔍 Debug iframe after SDK creation:', {
+          targetElement: targetElement,
+          iframe: iframe,
+          iframeStyle: iframe ? iframe.style.cssText : 'no iframe',
+          iframeSrc: iframe ? iframe.src : 'no iframe'
+        })
+      }, 1000)
       
    
       // Real Mona API login endpoint
@@ -81,7 +96,6 @@ export default function LoginPage() {
       
       const response = await attestSDK.fetchWithAttestation(
         loginUrl,
-        discoveryId,
         {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' }
@@ -104,6 +118,7 @@ export default function LoginPage() {
       setShowAttestContainer(false)
     } finally {
       setIsLoading(false)
+      setIframeActive(false) // Show UI again when process completes (same as oyaMoney)
     }
   }
 
@@ -165,41 +180,29 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col lg:flex-row">
 
-      {/* Mobile Toggle - Visible on mobile only */}
+      {/* Mobile Settings - Visible on mobile only */}
       <div className="lg:hidden bg-green-50 p-4 border-b border-green-100">
         <div className="flex items-center justify-between">
-          <div className="flex items-center">
-
-          </div>
+         
           
-          {/* Toggle Switch */}
-          <div className="flex items-center space-x-2">
-            <span className={`text-xs font-medium ${!isMonaAttest ? 'text-green-600' : 'text-gray-500'}`}>
-              Regular
-            </span>
-            <button
-              ref={toggleRef}
-              onClick={() => setIsMonaAttest(!isMonaAttest)}
-              onMouseDown={handleToggleMouseDown}
-              onMouseUp={handleToggleMouseUp}
-              onMouseLeave={handleToggleMouseUp}
-              onTouchStart={handleToggleMouseDown}
-              onTouchEnd={handleToggleMouseUp}
-              onContextMenu={handleToggleContextMenu}
-              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                isMonaAttest ? 'bg-green-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                  isMonaAttest ? 'translate-x-5' : 'translate-x-1'
-                }`}
-              />
-            </button>
-            <span className={`text-xs font-medium ${isMonaAttest ? 'text-green-600' : 'text-gray-500'}`}>
-              Mona Attest
-            </span>
-          </div>
+          {/* Settings Gear Icon */}
+          <button
+            ref={mobileToggleRef}
+            onClick={() => setShowClearDataModal(true)}
+            onMouseDown={handleToggleMouseDown}
+            onMouseUp={handleToggleMouseUp}
+            onMouseLeave={handleToggleMouseUp}
+            onTouchStart={handleToggleMouseDown}
+            onTouchEnd={handleToggleMouseUp}
+            onContextMenu={handleToggleContextMenu}
+            className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            title="Click or long press for settings"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -207,38 +210,26 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 bg-green-50 p-8 flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-12">
-          <div className="flex items-center">
-
-          </div>
+         
           
-          {/* Toggle Switch - Desktop */}
-          <div className="flex items-center space-x-2">
-            <span className={`text-sm font-medium ${!isMonaAttest ? 'text-green-600' : 'text-gray-500'}`}>
-              Regular
-            </span>
-            <button
-              ref={toggleRef}
-              onClick={() => setIsMonaAttest(!isMonaAttest)}
-              onMouseDown={handleToggleMouseDown}
-              onMouseUp={handleToggleMouseUp}
-              onMouseLeave={handleToggleMouseUp}
-              onTouchStart={handleToggleMouseDown}
-              onTouchEnd={handleToggleMouseUp}
-              onContextMenu={handleToggleContextMenu}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                isMonaAttest ? 'bg-green-600' : 'bg-gray-200'
-              }`}
-            >
-              <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  isMonaAttest ? 'translate-x-6' : 'translate-x-1'
-                }`}
-              />
-            </button>
-            <span className={`text-sm font-medium ${isMonaAttest ? 'text-green-600' : 'text-gray-500'}`}>
-              Mona Attest
-            </span>
-          </div>
+          {/* Settings Gear Icon - Desktop */}
+          <button
+            ref={desktopToggleRef}
+            onClick={() => setShowClearDataModal(true)}
+            onMouseDown={handleToggleMouseDown}
+            onMouseUp={handleToggleMouseUp}
+            onMouseLeave={handleToggleMouseUp}
+            onTouchStart={handleToggleMouseDown}
+            onTouchEnd={handleToggleMouseUp}
+            onContextMenu={handleToggleContextMenu}
+            className="p-3 text-gray-600 hover:text-green-600 hover:bg-green-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            title="Click or long press for settings"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
         </div>
 
         {/* Content with Image */}
@@ -360,51 +351,18 @@ export default function LoginPage() {
               </p>
             </div>
 
-            {/* Form */}
-            <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleContinue(); }}>
-              {/* Show form fields only in Regular mode */}
-              {!isMonaAttest && (
-                <>
-                  {/* NIN Field */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      NIN
-                    </label>
-                    <input
-                      type="text"
-                      value={nin}
-                      onChange={(e) => setNin(e.target.value)}
-                      placeholder="Enter your 11 digit NIN"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                    />
-                  </div>
+            {/* Show iframe container when active */}
+            {iframeActive && (
+              <div 
+                ref={attestContainerRef}
+                className="w-full min-h-[400px] bg-white"
+                style={containerHeight ? { minHeight: `${containerHeight}px` } : {}}
+              />
+            )}
 
-                  {/* Phone Number Field */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Enter NIN registered phone number"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
-                    />
-                  </div>
-                </>
-              )}
-
-              {/* Mona Attest Container */}
-              {isMonaAttest && showAttestContainer && (
-                <div 
-                  ref={attestContainerRef}
-                  className="w-full min-h-[400px] bg-white"
-                />
-              )}
-
-              {/* Continue Button - Only show when not showing attest container */}
-              {!(isMonaAttest && showAttestContainer) && (
+            {/* Show form when iframe is NOT active */}
+            {!iframeActive && (
+              <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleContinue(); }}>
                 <button
                   type="submit"
                   disabled={isLoading}
@@ -412,26 +370,15 @@ export default function LoginPage() {
                 >
                   {isLoading ? 'Processing...' : 'Continue'}
                 </button>
-              )}
+              </form>
+            )}
 
-              {/* Sign In Link - Only show in Regular mode */}
-              {!isMonaAttest && (
-                <div className="text-center">
-                  <a href="#" className="text-green-600 hover:text-green-700 text-sm">
-                    Have an account? Sign in
-                  </a>
-                </div>
-              )}
-            </form>
-
-            {/* Forgot NIN Section - Only show in Regular mode */}
-            {!isMonaAttest && (
-              <div className="mt-8 p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-medium text-gray-800 mb-2">Forgot your NIN?</h3>
-                <p className="text-gray-600 text-sm">
-                  Dial <span className="font-medium text-gray-800">*346#</span> on your NIN registered phone number to retrieve
-                </p>
-              </div>
+            {/* Hidden container for SDK targeting when not active */}
+            {!iframeActive && (
+              <div 
+                ref={attestContainerRef}
+                className="w-full h-0 overflow-hidden"
+              />
             )}
           </div>
         </div>
@@ -439,8 +386,14 @@ export default function LoginPage() {
 
       {/* Clear Data Modal */}
       {showClearDataModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-sm mx-4">
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          onClick={() => setShowClearDataModal(false)}
+        >
+          <div 
+            className="bg-white rounded-lg p-6 max-w-sm mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="text-center">
               <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
                 <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -30,21 +30,6 @@ export default function EducationService() {
     setShowAttestContainer(true)
 
     try {
-      // Mock discovery call
-      const discoveryResponse = await fetch('/api/consent/oyamoney-discovery', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          component: 'EducationService'
-        })
-      })
-
-      if (!discoveryResponse.ok) {
-        throw new Error('Discovery failed')
-      }
-
       // Load and initialize AttestFrontendSDK
       let AttestFrontendSDK
       try {
